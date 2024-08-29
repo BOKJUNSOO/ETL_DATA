@@ -27,73 +27,9 @@ class TopClassFilter(BaseFilter):
                                        ))
         class_df = class_df.select(["key_value",
                                     "Tallahart","Carcion","Arteria","Dowonkyung",
-                                    "sum","rank"])
+                                    "sum","rank","date","class"])
         
         return class_df
-
-# detect exp history (compare with yesterday data)
-# depend on init2_df method
-class TopExpUserFilter(BaseFilter):
-    # df1 = exp_data, df2 = yesterday_data, df3 = today_data, df4 = init2_df return
-    def filter(self, df1, df2, df3, df4):
-        df_j_1 = df4.join(df1,
-                     (df2["character_level"] == df1["level"]),
-                     "inner")
-        df = df_j_1.withColumn("increase_exp",
-                           F.when(df2["character_level"] != df3["character_level"],
-                                  ((df_j_1["need_exp"] - df2["character_exp"]) + df3["character_exp"]))
-                            .when(df3["character_level"] == df2["character_level"],
-                                  (df3["character_exp"] - df2["character_exp"])) \
-                            .otherwise(None)
-                            )
-        df = df.select("character_name",
-                       "class",
-                       df3["character_level"],
-                       "increase_exp",
-                       "level_up_amount",
-                       df4["date"]
-                       )\
-                .orderBy(F.desc("increase_exp"))
-        return df
-
-# detect predict day(predict leave user)
-# depend on init2_df method
-class PredictDayFilter(BaseFilter):
-    # df1 = exp_data, df2 = init2_df return, df3 = today_data, df4 = TopExpUserFilter return dataframe
-    def filter(self, df1, df2, df3, df4):
-        df_f = df2.join(df1,
-                      (df3["character_level"] == df1["level"]),
-                      "inner")
-        df_f = df_f.withColumn("need_exp_level_up",
-                           F.when(df3["character_level"] != 0,
-                                  (df_f["need_exp"] - df3["character_exp"])))
-        df_f = df_f.select("character_name",
-                       df3["character_level"],
-                       "class",
-                       "level_up_amount",
-                       "need_exp_level_up"
-                       )
-        df = df4.join(df_f,
-                      (df4["character_name"] == df_f["character_name"]),
-                      "inner"
-                      )
-        #df.show(10,False)
-        df = df.select(df4["character_name"],
-                       df4["class"],
-                       df4["character_level"],
-                       "need_exp_level_up",
-                       "increase_exp",
-                       df2["date"]
-                       )
-        
-        df = df.withColumn("need_day_level_up",
-                           F.when(F.col("increase_exp") == 0 ,1)
-                            .otherwise(F.round(df["need_exp_level_up"] / df["increase_exp"]))
-                            )
-        df = df.select("*") \
-               .orderBy(F.desc("character_level"),
-                        F.asc("need_day_level_up"))
-        return df
 
 # analysis increase ratio of class exp
 # another main.py for weekly plan)
@@ -147,5 +83,78 @@ class TopHuntingClassFilter(BaseFilter):
         
 
         return df
+    
+
+# detect exp history (compare with yesterday data)
+# depend on init2_df method
+class TopExpUserFilter(BaseFilter):
+    # df1 = exp_data, df2 = yesterday_data, df3 = today_data, df4 = init2_df return
+    def filter(self, df1, df2, df3, df4):
+        df_j_1 = df4.join(df1,
+                     (df2["character_level"] == df1["level"]),
+                     "inner")
+        df = df_j_1.withColumn("increase_exp",
+                           F.when(df2["character_level"] != df3["character_level"],
+                                  ((df_j_1["need_exp"] - df2["character_exp"]) + df3["character_exp"]))
+                            .when(df3["character_level"] == df2["character_level"],
+                                  (df3["character_exp"] - df2["character_exp"])) \
+                            .otherwise(None)
+                            )
+
+        df = df.select("character_name",
+                       "class",
+                       df3["character_level"],
+                       "increase_exp",
+                       "level_up_amount",
+                       df4["date"]
+                       )\
+                .orderBy(F.desc("increase_exp"))
+        
+        exp_rank = Window.orderBy(F.desc("increase_exp"))
+        
+        df = df.withColumn("exp_rank"
+                           , F.rank().over(exp_rank)
+                           )
+        return df
+
+# detect predict day(predict leave user)
+# depend on init2_df method
+class PredictDayFilter(BaseFilter):
+    # df1 = exp_data, df2 = init2_df return, df3 = today_data, df4 = TopExpUserFilter return dataframe
+    def filter(self, df1, df2, df3, df4):
+        df_f = df2.join(df1,
+                      (df3["character_level"] == df1["level"]),
+                      "inner")
+        df_f = df_f.withColumn("need_exp_level_up",
+                           F.when(df3["character_level"] != 0,
+                                  (df_f["need_exp"] - df3["character_exp"])))
+        df_f = df_f.select("character_name",
+                       df3["character_level"],
+                       "class",
+                       "level_up_amount",
+                       "need_exp_level_up"
+                       )
+        df = df4.join(df_f,
+                      (df4["character_name"] == df_f["character_name"]),
+                      "inner"
+                      )
+        #df.show(10,False)
+        df = df.select(df4["character_name"],
+                       df4["class"],
+                       df4["character_level"],
+                       "need_exp_level_up",
+                       "increase_exp",
+                       df4["date"]
+                       )
+        
+        df = df.withColumn("need_day_level_up",
+                           F.when(F.col("increase_exp") == 0 ,1)
+                            .otherwise(F.round(df["need_exp_level_up"] / df["increase_exp"]))
+                            )
+        df = df.select("*") \
+               .orderBy(F.desc("character_level"),
+                        F.asc("need_day_level_up"))
+        return df
+
 
     

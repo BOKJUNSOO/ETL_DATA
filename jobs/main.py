@@ -1,10 +1,12 @@
+# Extract ranking data // transform with spark session // loaded data at RDBMS(MySQL)
+
 import argparse
 from pyspark.sql import SparkSession
 from datetime import datetime, timedelta
 
 from base import *
 from filter import TopClassFilter, TopHuntingClassFilter ,TopExpUserFilter, PredictDayFilter
-from ms import Ms
+from mses import Ms , Es
 # four data model that i wanted
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -14,8 +16,7 @@ if __name__ == "__main__":
              .builder
              .master("local")
              .appName("spark-nexon_api")
-             .config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.0.jar')
-             #.config("spark.jars", "/opt/bitnami/spark/resources/mysql-connector-j-9.0.0.jar")
+             .config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
              .getOrCreate())
     args.spark = spark
 
@@ -25,10 +26,12 @@ if __name__ == "__main__":
     # today ranking data
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
+    #args.input_path2 = "/opt/bitnami/spark/data/ranking_2024-08-27.json"
 
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
+    #args.input_path3 = f"/opt/bitnami/spark/data/ranking_2024-08-26.json"
 
     df_e = read_input_csv(args.spark, args.input_path1)  #exp data
     df_t = read_input(args.spark, args.input_path2)  #today data
@@ -53,25 +56,37 @@ if __name__ == "__main__":
     exp_user = TopExpUserFilter(args)
     expuser_df = exp_user.filter(df_e, df_y, df_t, df2)
 
-    # predict day filter (with df2)
-    predict_day = PredictDayFilter(args)
-    predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)
-
     # top Hunting class filter (with df2)
     mean_exp = 500000000000
     exp_class = TopHuntingClassFilter(args)
     df = location2_df(expuser_df)
     tophuntclass_df = exp_class.filter(df, mean_exp)
 
+    # predict day filter (with df2)
+    predict_day = PredictDayFilter(args)
+    predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)
+
     # show spark dataframe
     dist_df.show(10, False)
-    expuser_df.show(10,False)
-    predict_day_df.show(10,False)
     tophuntclass_df.show(10,False)
 
+    expuser_df.show(10,False)
+    predict_day_df.show(10,False)
+    
+
     # save to MySQL RDBMS
-    mysql = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
-    mysql.write_to_mysql(dist_df, "level_distribution")
-    mysql.write_to_mysql(expuser_df , "top_increase_exp_user")
-    mysql.write_to_mysql(predict_day_df, "predict_day_levelup")
-    mysql.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
+    DB_NAME1 = "MapleRanking"
+    DB_NAME2 = "PersonalTrace"
+
+    #daily session!
+    mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
+    mysql1.write_to_mysql(dist_df, "level_distribution")
+    mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
+    
+    
+    # daily session (need fix to append..)
+    mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
+    mysql2.write_to_mysql(expuser_df , "top_increase_exp_user")  
+    mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
+    
+    

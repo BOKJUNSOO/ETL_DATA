@@ -7,7 +7,6 @@ headers = {
 
 date = "2024-05-05" # my miracle time..
 urlString = f"https://open.api.nexon.com/maplestory/v1/history/cube?count=1000&date={date}" 
-# urlString = f"https://open.api.nexon.com/maplestory/v1/history/potential?count=1000&date={date}"
 
 response = requests.get(urlString, headers = headers)
 myapi = response.json()

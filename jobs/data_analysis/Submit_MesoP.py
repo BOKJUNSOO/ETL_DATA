@@ -75,4 +75,4 @@ break_count3_df = break_count3_df.groupBy("third_line_grade") \
 break_count3_df.show()
 
 
-# docker exec -it Game_domain-spark-master-1 spark-submit --master spark://spark-master:7077 jobs/SparkSubmit.py date/myapi_m_2024-05-05.json
+# docker exec -it etl_data-spark-master-1 spark-submit --master spark://spark-master:7077 jobs/SparkSubmit.py date/myapi_m_2024-05-05.json

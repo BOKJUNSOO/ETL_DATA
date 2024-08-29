@@ -3,15 +3,15 @@ import json
 import time
 from datetime import datetime
 headers = {
-    "x-nxopen-api-key":"enter API key",
+    "x-nxopen-api-key":"",
     "User-agent": "Mozilla/5.0"
 }
 
 # set a target date (without daytime)
 target_date = "2024-08"
 
-for i in range(26,27): # set a target daytime
-    if i % 2 != 0:
+for i in range(29,30): # set a target daytime
+    if i % 2 == 0:
         time.sleep(30)
         mydata = []
     else:                

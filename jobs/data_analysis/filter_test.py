@@ -2,6 +2,10 @@ from pyspark.sql import SparkSession , Window
 import pyspark.sql.functions as F
 from pyspark.sql.functions import sum, max
 from base import *
+from filter import TopClassFilter
+
+from datetime import *
+
 spark = (
     SparkSession.builder
     .master("local")
@@ -9,18 +13,22 @@ spark = (
     .getOrCreate()
 )
 
-# load yesterday ranking data
-file_path = "/opt/bitnami/spark/data/ranking_2024-08-11.json"
-df_b = spark.read \
+target_date1 = datetime.now().strftime("2024-%m-%d")
+target_date2 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
+
+
+# load today ranking data
+file_path = f"/opt/bitnami/spark/data/ranking_{target_date1}.json"
+df = spark.read \
             .format("json") \
             .option("multiLine",True) \
             .option("header", True) \
             .option("inferschema", True) \
             .load(file_path)
 
-# load today ranking data
-file_path = "/opt/bitnami/spark/data/ranking_2024-08-12.json"
-df = spark.read \
+# load yesterday ranking data
+file_path = f"/opt/bitnami/spark/data/ranking_{target_date2}.json"
+df_b = spark.read \
             .format("json") \
             .option("multiLine",True) \
             .option("header", True) \
@@ -73,6 +81,7 @@ df2 = df2.withColumn("class" ,
                      F.when(F.col("sub_class_name") == "" , df2["class_name"]) \
                       .otherwise(F.col("class")))
 df2 = df2.drop("class_name", "sub_class_name")
+    
 # --------------------------------------------------------------------------------------
 # 2 init2_df method
 # inner join with two dataframe on character_name
@@ -222,11 +231,11 @@ hunt_rank = Window.partitionBy("status").orderBy(F.desc("increase_exp_avg"))
 df_m_3 = df_m_3.withColumn("hunting_rank"
                            , F.rank().over(hunt_rank)
                            )
-df_m_3.show(10,False)
+#df_m_3.show(10,False)
 
 df_m_3.select("*") \
       .where(F.col("status") == "Tallahart") \
-      .show(10,False)
+      #.show(10,False)
 #--------------------------------------------------------------------------------------
 
 
