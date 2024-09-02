@@ -71,10 +71,10 @@ if __name__ == "__main__":
     predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)    # -- data model3
 
     # show spark dataframe
-    dist_df.show(10, False)
-    tophuntclass_df.show(10,False)
-
     expuser_df.show(10,False)
+    
+    dist_df.show(10, False) 
+    tophuntclass_df.show(10,False)
     predict_day_df.show(10,False)
     
 
@@ -83,13 +83,13 @@ if __name__ == "__main__":
     DB_NAME2 = "PersonalTrace"
 
     #daily session!
-    mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
-    mysql1.write_to_mysql(dist_df, "level_distribution")
-    mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
+    #mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
+    #mysql1.write_to_mysql(dist_df, "level_distribution")
+    #mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
     
     
     # daily session (need fix to append..)
-    mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
-    mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
+    #mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
+    #mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
     
     
