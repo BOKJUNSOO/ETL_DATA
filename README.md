@@ -5,7 +5,7 @@
 
 ```
 | data
-  |- data with github archive
+  |- Nexon Open Api data
 | jobs
   |- pyspark files go here
 | resources
