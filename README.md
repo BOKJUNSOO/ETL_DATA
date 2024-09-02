@@ -9,8 +9,10 @@
 ## Directory Structure
 
 ```
+| MySQL
+  |- Dockerfile for build MySQL
 | data
-  |- Nexon Open Api data
+  |- Nexon Open Api data goes here
 | jobs
   |- pyspark files go here
 | resources

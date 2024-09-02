@@ -21,9 +21,9 @@ spark = (
     .builder
     .master("local")
     .appName("Rank_info")
-    #.config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
-    .config("spark.driver.extraClassPath", "/opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
-    .config("spark.jars", "opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
+    .config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
+    #.config("spark.driver.extraClassPath", "/opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
+    #.config("spark.jars", "opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
     .getOrCreate()
 )
 
