@@ -156,8 +156,5 @@ class PredictDayFilter(BaseFilter):
                         F.asc("need_day_level_up"))
         return df
     
-# filter for submit merged data (needs for past data) - elasticsearch
-# daily로 진행하는 것이 아닌 한번에 병합된 데이터 처리가능한 필터코드 작성할것 - for data model2
-
 
     
