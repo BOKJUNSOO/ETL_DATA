@@ -9,6 +9,7 @@ __pycache__/
 # airflow with dagsfile , json 
 *.env/  
 *.json/
+test/
 data/
 logs/
 dags/
