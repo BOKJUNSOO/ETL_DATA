@@ -45,7 +45,7 @@ if __name__ == "__main__":
         df_t = read_input(args.spark, args.input_path2)
         df_y = read_input2(args.spark, args.input_path3)
 
-            # load and preprocessed data (for daily status)
+        # load and preprocessed data (for daily status)
         df = init_df(df_t)
 
         # load and preporcessed data (for comparing)
@@ -54,12 +54,6 @@ if __name__ == "__main__":
         df_y = init_df(df_y)
         df2 = init2_df(df_t, df_y)
 
-        #-- DataModel_1
-        # daily status filter - location amount & Top rate class
-        # can use this order with merged data
-        #dist_filter = TopClassFilter(args)
-        #dist_df = location_df(df)
-        #dist_df = dist_filter.filter(dist_df)   # -- datamodel 1
         # ---------------------------------------------------------|
         #-- DataModel_2
         # use another order with merged data for this datamodel

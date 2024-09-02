@@ -10,7 +10,7 @@ __pycache__/
 *.env/  
 *.json/
 test/
-data/
+data/*.json
 logs/
 dags/
 
