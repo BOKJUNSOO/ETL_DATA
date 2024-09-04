@@ -35,16 +35,17 @@ if __name__ == "__main__":
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     #
-    args.target_date = "2024-08-10"
-    args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
+    #args.target_date = "2024-09-01"
+    #args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
 
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
+    
     #
-    args.target_date1 = "2024-08-09"
-    args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
+    #args.target_date1 = "2024-08-31"
+    #args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
     
 
     df_e = read_input_csv(args.spark, args.input_path1)  #exp data
@@ -81,10 +82,19 @@ if __name__ == "__main__":
     # predict day filter (with df2)
     predict_day = PredictDayFilter(args)
     predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df) # -- datamodel 3 (personal trace)
+    
+    # ---------------------------------------------------------|
+    # Status_Change_count filter (with df2)
+    status_change = StatusChangeCount(args)
+    status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 4 (status_change_info)
+    
 
+    dist_df.show(10,False)
+    status_change_df.show(10,False)
     # save three data model to elasticSearch
     es = Es("http://es:9200")
     #es.write_elasticesearch(dist_df ,f"ranking_data_{args.target_date}") # can save with merged data 
-    es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
-    es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
+    #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
+    #es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
+    #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 

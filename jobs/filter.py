@@ -25,6 +25,7 @@ class TopClassFilter(BaseFilter):
                                                F.col("class")
                                            )
                                        ))
+        
         class_df = class_df.select(["key_value",
                                     "Tallahart","Carcion","Arteria","Dowonkyung",
                                     "sum","rank","date","class"])
@@ -85,7 +86,7 @@ class TopHuntingClassFilter(BaseFilter):
         return df
     
 
-# detect exp history (compare with yesterday data)
+# detect exp history (compare with yesterday data) - sub method
 # depend on init2_df method
 class TopExpUserFilter(BaseFilter):
     # df1 = exp_data, df2 = yesterday_data, df3 = today_data, df4 = init2_df return
@@ -156,5 +157,23 @@ class PredictDayFilter(BaseFilter):
                         F.asc("need_day_level_up"))
         return df
     
+# depand on init_df2 method
+class StatusChangeCount(BaseFilter):
+    # df = init_df2 return , df1 = yesterday_data, df2 = today_data
+    def filter(self, df,  df1, df2):
+        df = df.withColumn("status_change",
+                   F.when((df1["character_level"] == 279) & (df2["character_level"] == 280) , "go Arteria!") \
+                        .when((df1["character_level"] == 284) & (df2["character_level"] == 285) , "go Carcion!") \
+                        .when((df1["character_level"] == 289) & (df2["character_level"] == 290) , "go Tallahart!")
+                        .otherwise("stay here"))
 
-    
+        df = df.select("class",
+               "date",
+               df2["character_level"],
+               "status_change")
+        df = df.select("*") \
+               .groupBy("class",
+                "date",
+                "status_change")    \
+               .count()
+        return df

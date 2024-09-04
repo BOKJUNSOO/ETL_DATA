@@ -1,5 +1,6 @@
 # time series analysis with elasticsearch and kibana
 # needs for merged data (data model1)
+# write merged to ElasticSearch and MySQL
 
 from pyspark.sql import SparkSession , Window
 import pyspark.sql.functions as F
@@ -21,7 +22,7 @@ spark = (
     .builder
     .master("local")
     .appName("Rank_info")
-    .config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
+    #.config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
     .config("spark.driver.extraClassPath", "/opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
     .config("spark.jars", "opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
     .getOrCreate()
@@ -53,8 +54,8 @@ df = pivot.filter(df)
 df.show(10,False)
 
 # write merged ranking data to MySQL
-mysql1 = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
-mysql1.write_to_mysql(df,"level_distribution")
+#mysql1 = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
+#mysql1.write_to_mysql(df,"level_distribution")
 
 # write merged ranking data to Elastic Search
 es = Es("http://es:9200")

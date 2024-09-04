@@ -113,7 +113,7 @@ def init_df(df):
 # join today and yesterday dataframe (depend on init_df)
 def init2_df(df_t, df_y):
     df = df_y.join(df_t,
-                    (df_y["character_name"] == df_t["character_name"]),
+                    (df_y["character_name"] == df_t["character_name"]), # 각 인스턴스의 식별자를 닉네임으로 밖에 가져올 수 없음.
                     "inner")
     df = df.withColumn("level_up_amount",
                        (df_t["character_level"] - df_y["character_level"]))

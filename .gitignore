@@ -14,6 +14,7 @@ data/*.json
 data/test_data/
 logs/
 dags/
+es-data/
 
 # Distribution / packaging
 .Python

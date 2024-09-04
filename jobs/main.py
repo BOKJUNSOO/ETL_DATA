@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from datetime import datetime, timedelta
 
 from base import *
-from filter import TopClassFilter, TopHuntingClassFilter ,TopExpUserFilter, PredictDayFilter
+from filter import TopClassFilter, TopHuntingClassFilter ,TopExpUserFilter, PredictDayFilter, StatusChangeCount
 from mses import Ms , Es
 # four data model that i wanted
 if __name__ == "__main__":
@@ -28,13 +28,11 @@ if __name__ == "__main__":
     # today ranking data
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
-    #args.input_path2 = "/opt/bitnami/spark/data/ranking_2024-08-30.json"
-    
+
 
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
-    #args.input_path3 = f"/opt/bitnami/spark/data/ranking_2024-08-29.json"
     
 
     df_e = read_input_csv(args.spark, args.input_path1)  #exp data
@@ -70,26 +68,31 @@ if __name__ == "__main__":
     predict_day = PredictDayFilter(args)
     predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)    # -- data model3
 
+    # StatusChangeCount (with df2)
+    status_change = StatusChangeCount(args)
+    status_change_df = status_change.filter(df2, df_y, df_t)
+
     # show spark dataframe
     expuser_df.show(10,False)
     
     dist_df.show(10, False) 
     tophuntclass_df.show(10,False)
     predict_day_df.show(10,False)
-    
+    status_change_df.show(30,False)
 
     # save to MySQL RDBMS
     DB_NAME1 = "MapleRanking"
     DB_NAME2 = "PersonalTrace"
 
-    #daily session!
-    #mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
-    #mysql1.write_to_mysql(dist_df, "level_distribution")
-    #mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
+    #daily session_ mapleranking schema
+    mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
+    mysql1.write_to_mysql(dist_df, "level_distribution")
+    mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
+    mysql1.write_to_mysql(status_change_df, "Status_change_count")
     
     
-    # daily session (need fix to append..)
-    #mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
-    #mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
+    # daily session _personal trace schema
+    mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
+    mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
     
     

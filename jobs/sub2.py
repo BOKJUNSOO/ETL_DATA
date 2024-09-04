@@ -1,5 +1,5 @@
 # time series analysis with elasticsearch
-# needs for some date range data (data model 2,3)
+# needs for some date range data (data model 2,3,4)
 
 from pyspark.sql import SparkSession , Window
 import pyspark.sql.functions as F
@@ -22,6 +22,7 @@ if __name__ == "__main__":
              .builder
              .master("local")
              .appName("spark-nexon_api_es")
+             .config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
              .config("spark.driver.extraClassPath", "/opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
              .config("spark.jars", "opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
              .getOrCreate())
@@ -31,13 +32,13 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
     
     # put date for needs
-    for i in range(11,26):
-        # today data
-        args.target_date = f"2024-08-{i}"
+    for i in range(2,4):
+        # today data (@timestamp)
+        args.target_date = f"2024-09-0{i}"
         args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
 
         # one day before data
-        args.target_date1 = f"2024-08-{i-1}"
+        args.target_date1 = f"2024-09-0{i-1}"
         args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
         # load data
@@ -70,7 +71,16 @@ if __name__ == "__main__":
         predict_day = PredictDayFilter(args)
         predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df) # -- datamodel 3 (personal trace)
         
+        # ---------------------------------------------------------|
+        # Status_Change_count filter (with df2)
+        status_change = StatusChangeCount(args)
+        status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 4 (status_change_info)
+
         # save three data model to elasticSearch
         es = Es("http://es:9200")
         es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
         es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
+        es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
+
+        #ms = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
+        #ms.write_to_mysql(status_change_df, "Status_change_count")
