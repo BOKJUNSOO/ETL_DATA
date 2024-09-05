@@ -32,7 +32,7 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
     
     # put date for needs
-    for i in range(2,4):
+    for i in range(2,6):
         # today data (@timestamp)
         args.target_date = f"2024-09-0{i}"
         args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
@@ -78,9 +78,9 @@ if __name__ == "__main__":
 
         # save three data model to elasticSearch
         es = Es("http://es:9200")
-        es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
-        es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
-        es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
+        #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
+        es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}")
+        #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 
         #ms = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
         #ms.write_to_mysql(status_change_df, "Status_change_count")

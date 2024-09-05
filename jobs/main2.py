@@ -93,8 +93,8 @@ if __name__ == "__main__":
     status_change_df.show(10,False)
     # save three data model to elasticSearch
     es = Es("http://es:9200")
-    #es.write_elasticesearch(dist_df ,f"ranking_data_{args.target_date}") # can save with merged data 
-    #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
-    #es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
-    #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
+    es.write_elasticesearch(dist_df ,f"ranking_data_{args.target_date}") # can save with merged data 
+    es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
+    es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
+    es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 

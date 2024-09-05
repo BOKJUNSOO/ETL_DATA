@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # today ranking data
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
-
+    
 
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
@@ -62,23 +62,28 @@ if __name__ == "__main__":
     mean_exp = 500000000000
     exp_class = TopHuntingClassFilter(args)
     df = location2_df(expuser_df)
-    tophuntclass_df = exp_class.filter(df, mean_exp)    # -- data model2
+    tophuntclass_df = exp_class.filter(df, mean_exp)    # -- data model 2
 
     # predict day filter (with df2)
     predict_day = PredictDayFilter(args)
-    predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)    # -- data model3
-
+    predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)    # -- data model 3
     # StatusChangeCount (with df2)
     status_change = StatusChangeCount(args)
-    status_change_df = status_change.filter(df2, df_y, df_t)
+    status_change_df = status_change.filter(df2, df_y, df_t)    # -- data model 4
 
     # show spark dataframe
-    expuser_df.show(10,False)
+    #expuser_df.show(10,False)
     
-    dist_df.show(10, False) 
-    tophuntclass_df.show(10,False)
-    predict_day_df.show(10,False)
-    status_change_df.show(30,False)
+    # spark dataframe to write
+    #dist_df.show(10, False) 
+    #tophuntclass_df.show(10,False)
+    #status_change_df.show(30,False)
+
+    
+    predict_day_df.select("*") \
+                  .orderBy(F.desc("increase_exp")) \
+                  .show(10,False)
+
 
     # save to MySQL RDBMS
     DB_NAME1 = "MapleRanking"
@@ -94,5 +99,6 @@ if __name__ == "__main__":
     # daily session _personal trace schema
     mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
     mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
+
     
-    
+

@@ -92,7 +92,7 @@ class TopExpUserFilter(BaseFilter):
     # df1 = exp_data, df2 = yesterday_data, df3 = today_data, df4 = init2_df return
     def filter(self, df1, df2, df3, df4):
         df_j_1 = df4.join(df1,
-                     (df2["character_level"] == df1["level"]),
+                     (df2["character_level"] == df1["level"]),  
                      "inner")
         df = df_j_1.withColumn("increase_exp",
                            F.when(df2["character_level"] != df3["character_level"],
@@ -122,13 +122,15 @@ class TopExpUserFilter(BaseFilter):
 # depend on init2_df method
 class PredictDayFilter(BaseFilter):
     # df1 = exp_data, df2 = init2_df return, df3 = today_data, df4 = TopExpUserFilter return dataframe
+    # df4 columns : c_name, class, c_level(today), increase_exp, date(today)
     def filter(self, df1, df2, df3, df4):
         df_f = df2.join(df1,
                       (df3["character_level"] == df1["level"]),
                       "inner")
         df_f = df_f.withColumn("need_exp_level_up",
                            F.when(df3["character_level"] != 0,
-                                  (df_f["need_exp"] - df3["character_exp"])))
+                                  ((df_f["need_exp"]) - (df3["character_exp"]))
+                                  ))
         df_f = df_f.select("character_name",
                        df3["character_level"],
                        "class",
@@ -149,7 +151,8 @@ class PredictDayFilter(BaseFilter):
                        )
         
         df = df.withColumn("need_day_level_up",
-                           F.when(F.col("increase_exp") == 0 ,1)
+                           F.when(F.col("increase_exp") == 0 ,"we need you T^T")
+                            .when(((F.col("increase_exp")) >= (df["need_exp_level_up"])) , "Congratulation!")
                             .otherwise(F.round(df["need_exp_level_up"] / df["increase_exp"]))
                             )
         df = df.select("*") \
