@@ -63,9 +63,11 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=mysql
     networks:
-      - default-network
+      - default-network   
+    volumes:
+      - ./mysql-data:/var/lib/mysql
     ports:
-      - "3306:3306"   
+      - "3306:3306"
   
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.3

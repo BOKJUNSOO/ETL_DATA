@@ -15,6 +15,7 @@ data/test_data/
 logs/
 dags/
 es-data/
+mysql-data/
 
 # Distribution / packaging
 .Python

@@ -35,7 +35,7 @@ if __name__ == "__main__":
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     #
-    #args.target_date = "2024-09-01"
+    #args.target_date = "2024-09-06"
     #args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
     
     #
-    #args.target_date1 = "2024-08-31"
+    #args.target_date1 = "2024-09-05"
     #args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
     
 
@@ -95,6 +95,6 @@ if __name__ == "__main__":
     es = Es("http://es:9200")
     es.write_elasticesearch(dist_df ,f"ranking_data_{args.target_date}") # can save with merged data 
     es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
-    es.write_elasticesearch(predict_day_df , f"personal_data_{args.target_date}")
+    es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}")
     es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 

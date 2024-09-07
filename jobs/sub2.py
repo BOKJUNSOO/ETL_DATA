@@ -32,13 +32,13 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
     
     # put date for needs
-    for i in range(2,6):
+    for i in range(12,32):
         # today data (@timestamp)
-        args.target_date = f"2024-09-0{i}"
+        args.target_date = f"2024-08-{i}"
         args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
 
         # one day before data
-        args.target_date1 = f"2024-09-0{i-1}"
+        args.target_date1 = f"2024-08-{i-1}"
         args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
         # load data
@@ -54,18 +54,19 @@ if __name__ == "__main__":
         df_t = init_df(df_t)
         df_y = init_df(df_y)
         df2 = init2_df(df_t, df_y)
-
+        
         # ---------------------------------------------------------|
         #-- DataModel_2
         # use another order with merged data for this datamodel
         exp_user = TopExpUserFilter(args)
         expuser_df = exp_user.filter(df_e, df_y, df_t, df2)
-
+        """
         # top Hunting class filter (with df2)
         mean_exp = 500000000000
         exp_class = TopHuntingClassFilter(args)
         df = location2_df(expuser_df)
         tophuntclass_df = exp_class.filter(df, mean_exp)    # -- datamodel 2
+        """
         # ---------------------------------------------------------|
         # predict day filter (with df2)
         predict_day = PredictDayFilter(args)
@@ -73,14 +74,17 @@ if __name__ == "__main__":
         
         # ---------------------------------------------------------|
         # Status_Change_count filter (with df2)
-        status_change = StatusChangeCount(args)
-        status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 4 (status_change_info)
+        #status_change = StatusChangeCount(args)
+        #status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 4 (status_change_info)
 
         # save three data model to elasticSearch
-        es = Es("http://es:9200")
+        #es = Es("http://es:9200")
         #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
-        es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}")
+        #es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}")
         #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 
         #ms = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
         #ms.write_to_mysql(status_change_df, "Status_change_count")
+        ms = Ms("jdbc:mysql://172.21.80.1:3306/PersonalTrace")
+        ms.write_to_mysql(predict_day_df, "predict_day_levelup")
+        

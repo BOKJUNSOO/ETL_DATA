@@ -33,7 +33,7 @@ if __name__ == "__main__":
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
-    
+
 
     df_e = read_input_csv(args.spark, args.input_path1)  #exp data
     df_t = read_input(args.spark, args.input_path2)  #today data
