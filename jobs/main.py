@@ -29,10 +29,17 @@ if __name__ == "__main__":
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
+    #
+    #args.target_date ="2024-08-02"
+    #args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
 
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
+
+    #
+    #args.target_date1 ="2024-08-01"
+    #args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
 
     df_e = read_input_csv(args.spark, args.input_path1)  #exp data
@@ -90,15 +97,15 @@ if __name__ == "__main__":
     DB_NAME2 = "PersonalTrace"
 
     #daily session_ mapleranking schema
-    mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
-    mysql1.write_to_mysql(dist_df, "level_distribution")
-    mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
-    mysql1.write_to_mysql(status_change_df, "Status_change_count")
+    #mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
+    #mysql1.write_to_mysql(dist_df, "level_distribution")
+    #mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
+    #mysql1.write_to_mysql(status_change_df, "Status_change_count")
     
     
     # daily session _personal trace schema
-    mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
-    mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
+    #mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
+    #mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
 
     
 

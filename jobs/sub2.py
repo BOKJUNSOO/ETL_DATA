@@ -32,13 +32,13 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
     
     # put date for needs
-    for i in range(12,32):
+    for i in range(3,10):
         # today data (@timestamp)
-        args.target_date = f"2024-08-{i}"
+        args.target_date = f"2024-08-0{i}"
         args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
 
         # one day before data
-        args.target_date1 = f"2024-08-{i-1}"
+        args.target_date1 = f"2024-08-0{i-1}"
         args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
         # load data

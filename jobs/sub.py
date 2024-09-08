@@ -31,7 +31,7 @@ spark = (
 args.spark = spark
 
 # input file name
-mergedData_file_name = ""
+mergedData_file_name = "ranking_678"
 
 # load merged data for some date
 file_path1 = f"/opt/bitnami/spark/data/{mergedData_file_name}.json"
@@ -58,5 +58,5 @@ df.show(10,False)
 #mysql1.write_to_mysql(df,"level_distribution")
 
 # write merged ranking data to Elastic Search
-es = Es("http://es:9200")
-es.write_elasticesearch(df, f"ranking_data_{mergedData_file_name}")
+#es = Es("http://es:9200")
+#es.write_elasticesearch(df, f"test_spark_memory_{mergedData_file_name}")
