@@ -16,7 +16,7 @@ class TopClassFilter(BaseFilter):
 
         window = Window.orderBy(F.desc("sum"))
         class_df = class_df.withColumn("rank", F.rank().over(window))
-        # set a key value - elastic search
+        # set a key value
         class_df = class_df.withColumn("key_value",
                                        (
                                            F.concat(
@@ -32,8 +32,24 @@ class TopClassFilter(BaseFilter):
         
         return class_df
 
+class ClassTraceFilter(BaseFilter):
+    # df = init_df method with today data
+    def filter(self, df):
+        # set a key_value
+        df = df.withColumn("key_value",(F.concat("character_name",
+                                                 F.lit("-"),
+                                                 "date")))
+        df = df.select("character_name",
+                       "character_level",
+                       "class",
+                       "date",
+                       "key_value")
+        return df
+        
+
+
 # analysis increase ratio of class exp
-# another main.py for weekly plan)
+# compare with yesterday data
 class TopHuntingClassFilter(BaseFilter):
     # df : depend on init2_df -> TopexpUserMethod -> location2_df
     # mean_exp : get_exp with mean play time
@@ -65,15 +81,24 @@ class TopHuntingClassFilter(BaseFilter):
                        df_a["group_key"] == df_b["group_key"],
                        "inner")
     
-        
-        df = df.select(df_a["group_key"],
-                       df_a["class"],
+        # set a key value
+        df = df.withColumn("key_value",
+                                       (
+                                           F.concat(
+                                               df_a["group_key"],
+                                               F.lit("-"),
+                                               df_a["date"]
+                                           )
+                                       ))
+
+        df = df.select(df_a["class"],
                        df_a["status"],
                        "count",
                        "increase_exp_sum",
                        "increase_exp_max",
                        "increase_exp_avg",
-                       df_a["date"]
+                       df_a["date"],
+                       "key_value"
                        )
         
         hunt_rank = Window.partitionBy("status").orderBy(F.desc("increase_exp_avg"))
@@ -86,8 +111,8 @@ class TopHuntingClassFilter(BaseFilter):
         return df
     
 
-# detect exp history (compare with yesterday data) - sub method
-# depend on init2_df method
+# detect exp history
+# compare with yesterday data
 class TopExpUserFilter(BaseFilter):
     # df1 = exp_data, df2 = yesterday_data, df3 = today_data, df4 = init2_df return
     def filter(self, df1, df2, df3, df4):
@@ -118,8 +143,8 @@ class TopExpUserFilter(BaseFilter):
                            )
         return df
 
-# detect predict day(predict leave user)
-# depend on init2_df method
+# detect predict day (predict leave user)
+# compare with yesterday data) - sub method
 class PredictDayFilter(BaseFilter):
     # df1 = exp_data, df2 = init2_df return, df3 = today_data, df4 = TopExpUserFilter return dataframe
     # df4 columns : c_name, class, c_level(today), increase_exp, date(today)
@@ -155,12 +180,22 @@ class PredictDayFilter(BaseFilter):
                             .when(((F.col("increase_exp")) >= (df["need_exp_level_up"])) , "Congratulation!")
                             .otherwise(F.round(df["need_exp_level_up"] / df["increase_exp"]))
                             )
+        # set a key value
+        df = df.withColumn("key_value",
+                                       (
+                                           F.concat(
+                                               df4["character_name"],
+                                               F.lit("-"),
+                                               df4["date"]
+                                           )
+                                       ))
         df = df.select("*") \
                .orderBy(F.desc("character_level"),
                         F.asc("need_day_level_up"))
         return df
-    
-# depand on init_df2 method
+
+# who go to New Status        
+# compare with yesterday data) - sub method
 class StatusChangeCount(BaseFilter):
     # df = init_df2 return , df1 = yesterday_data, df2 = today_data
     def filter(self, df,  df1, df2):

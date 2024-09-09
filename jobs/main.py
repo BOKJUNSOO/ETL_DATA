@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from datetime import datetime, timedelta
 
 from base import *
-from filter import TopClassFilter, TopHuntingClassFilter ,TopExpUserFilter, PredictDayFilter, StatusChangeCount
+from filter import TopClassFilter, TopHuntingClassFilter ,TopExpUserFilter, PredictDayFilter, StatusChangeCount, ClassTraceFilter
 from mses import Ms , Es
 # four data model that i wanted
 if __name__ == "__main__":
@@ -27,19 +27,14 @@ if __name__ == "__main__":
 
     # today ranking data
     args.target_date = datetime.now().strftime("2024-%m-%d")
+    #args.target_date = "2024-07-10"
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
-    #
-    #args.target_date ="2024-08-02"
-    #args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
-
+    
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
+    #args.target_date1 = "2024-07-09"
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
-
-    #
-    #args.target_date1 ="2024-08-01"
-    #args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
 
     df_e = read_input_csv(args.spark, args.input_path1)  #exp data
@@ -74,38 +69,40 @@ if __name__ == "__main__":
     # predict day filter (with df2)
     predict_day = PredictDayFilter(args)
     predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df)    # -- data model 3
+
+    # class trace filter (with today data) -- personal Trace
+    classtrace = ClassTraceFilter(args)
+    classtrace_df = classtrace.filter(df)     # -- data model 4
+
     # StatusChangeCount (with df2)
     status_change = StatusChangeCount(args)
-    status_change_df = status_change.filter(df2, df_y, df_t)    # -- data model 4
+    status_change_df = status_change.filter(df2, df_y, df_t)    # -- data model 5
 
     # show spark dataframe
-    #expuser_df.show(10,False)
     
     # spark dataframe to write
     #dist_df.show(10, False) 
     #tophuntclass_df.show(10,False)
-    #status_change_df.show(30,False)
-
-    
     predict_day_df.select("*") \
-                  .orderBy(F.desc("increase_exp")) \
+                  .orderBy(F.asc("need_exp_level_up")) \
                   .show(10,False)
-
+    #classtrace_df.show(10,False)
+    #status_change_df.show(30,False)
 
     # save to MySQL RDBMS
     DB_NAME1 = "MapleRanking"
     DB_NAME2 = "PersonalTrace"
 
     #daily session_ mapleranking schema
-    #mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
-    #mysql1.write_to_mysql(dist_df, "level_distribution")
-    #mysql1.write_to_mysql(tophuntclass_df, "top_increase_exp_class")
-    #mysql1.write_to_mysql(status_change_df, "Status_change_count")
+    mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
+    mysql1.write_to_mysql(dist_df, "distribution")
+    mysql1.write_to_mysql(tophuntclass_df, "hunting")
+    mysql1.write_to_mysql(status_change_df, "status")
     
     
     # daily session _personal trace schema
-    #mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
-    #mysql2.write_to_mysql(predict_day_df, "predict_day_levelup")  
-
+    mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
+    mysql2.write_to_mysql(predict_day_df, "levelup")  
+    mysql2.write_to_mysql(classtrace_df, "class")
     
 

@@ -1,5 +1,5 @@
 # time series analysis with elasticsearch
-# needs for some date range data (data model 2,3,4)
+# needs for some date range data (data model 2,3,4,5)
 
 from pyspark.sql import SparkSession , Window
 import pyspark.sql.functions as F
@@ -32,13 +32,13 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
     
     # put date for needs
-    for i in range(3,10):
+    for i in range(11,32):
         # today data (@timestamp)
-        args.target_date = f"2024-08-0{i}"
+        args.target_date = f"2024-07-{i}"
         args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
-
+        
         # one day before data
-        args.target_date1 = f"2024-08-0{i-1}"
+        args.target_date1 = f"2024-07-{i-1}"
         args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
         # load data
@@ -58,19 +58,19 @@ if __name__ == "__main__":
         # ---------------------------------------------------------|
         #-- DataModel_2
         # use another order with merged data for this datamodel
-        exp_user = TopExpUserFilter(args)
-        expuser_df = exp_user.filter(df_e, df_y, df_t, df2)
-        """
+        #exp_user = TopExpUserFilter(args)
+        #expuser_df = exp_user.filter(df_e, df_y, df_t, df2)
+        
         # top Hunting class filter (with df2)
-        mean_exp = 500000000000
-        exp_class = TopHuntingClassFilter(args)
-        df = location2_df(expuser_df)
-        tophuntclass_df = exp_class.filter(df, mean_exp)    # -- datamodel 2
-        """
+        #mean_exp = 500000000000
+        #exp_class = TopHuntingClassFilter(args)
+        #df = location2_df(expuser_df)
+        #tophuntclass_df = exp_class.filter(df, mean_exp)    # -- datamodel 2
+        
         # ---------------------------------------------------------|
         # predict day filter (with df2)
-        predict_day = PredictDayFilter(args)
-        predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df) # -- datamodel 3 (personal trace)
+        #predict_day = PredictDayFilter(args)
+        #predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df) # -- datamodel 3 (personal trace)
         
         # ---------------------------------------------------------|
         # Status_Change_count filter (with df2)
@@ -83,8 +83,14 @@ if __name__ == "__main__":
         #es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}")
         #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 
-        #ms = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
-        #ms.write_to_mysql(status_change_df, "Status_change_count")
+        ms = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
+        #ms.write_to_mysql(status_change_df, "status")
+        #ms.write_to_mysql(tophuntclass_df, "hunting")
+
         ms = Ms("jdbc:mysql://172.21.80.1:3306/PersonalTrace")
-        ms.write_to_mysql(predict_day_df, "predict_day_levelup")
+        classtrace = ClassTraceFilter(args)
+        classtrace_df = classtrace.filter(df)     
+        classtrace_df.show(20,False)        # -- data model 4
+        ms.write_to_mysql(classtrace_df,"class")
+        #ms.write_to_mysql(predict_day_df, "levelup")
         

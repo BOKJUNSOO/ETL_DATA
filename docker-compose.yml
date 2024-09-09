@@ -11,7 +11,7 @@ x-spark-common: &spark-common
   deploy:
     resources:
       limits:
-        memory: 4g
+        memory: 4g  # 컨테이너의 메모리 제한 설정
       
 
 services:
@@ -28,7 +28,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4g
+          memory: 4g  # Master의 메모리 제한 설정
 
   spark-worker-1:
     <<: *spark-common
@@ -43,7 +43,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4g
+          memory: 4g  # Worker 의 메몰 제한 설정
 
 
   spark-worker-2:

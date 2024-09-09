@@ -22,16 +22,16 @@ spark = (
     .builder
     .master("local")
     .appName("Rank_info")
-    #.config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
-    .config("spark.driver.extraClassPath", "/opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
-    .config("spark.jars", "opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
+    .config("spark.jars.packages" , 'mysql:mysql-connector-j-9.0.0.jar')
+    #.config("spark.driver.extraClassPath", "/opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
+    #.config("spark.jars", "opt/bitnami/spark/resources/elasticsearch-spark-30_2.12-8.4.3.jar")
     .getOrCreate()
 )
 
 args.spark = spark
 
 # input file name
-mergedData_file_name = "ranking_678"
+mergedData_file_name = ""
 
 # load merged data for some date
 file_path1 = f"/opt/bitnami/spark/data/{mergedData_file_name}.json"
@@ -50,13 +50,11 @@ df = init_df(df)
 # indexing with key value : date - class
 df = location_df(df)
 pivot = TopClassFilter(args)
-df = pivot.filter(df)
-df.show(10,False)
+df = pivot.filter(df)   # -- data model 1
 
 # write merged ranking data to MySQL
-#mysql1 = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
-#mysql1.write_to_mysql(df,"level_distribution")
+mysql1 = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
+mysql1.write_to_mysql(df,"distribution")
 
 # write merged ranking data to Elastic Search
-#es = Es("http://es:9200")
-#es.write_elasticesearch(df, f"test_spark_memory_{mergedData_file_name}")
+es = Es("http://es:9200")
