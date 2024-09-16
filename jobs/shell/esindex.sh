@@ -9,7 +9,7 @@ curl -XPUT \
       -d '{ "persistent": { "action.destructive_requires_name": false } }'
 
 # index 패턴 삽입
-curl -XDELETE "http://localhost:9200/$*_${index}" 
+curl -XDELETE "http://localhost:9200/*" 
 
 # wildcard 사용 금지
 curl -XPUT \

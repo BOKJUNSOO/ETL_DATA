@@ -27,13 +27,13 @@ if __name__ == "__main__":
 
     # today ranking data @timestamp
     args.target_date = datetime.now().strftime("2024-%m-%d")
-    #args.target_date = "2024-09-10"
+    #args.target_date = "2024-09-01"
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
     
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
-    #args.target_date1 = "2024-09-09"
+    #args.target_date1 = "2024-08-31"
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
 

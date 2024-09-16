@@ -2,8 +2,8 @@
 
 # 변수 설정
 CONTAINER_NAME="etl_data-spark-master-1"
-JAR_FILE="resources/mysql-connector-j-9.0.0.jar" #elasticsearch-spark-30_2.12-8.4.3.jar
-PY_FILE="jobs/sub2.py"
+JAR_FILE="resources/elasticsearch-spark-30_2.12-8.4.3.jar" #mysql-connector-j-9.0.0.jar
+PY_FILE="jobs/sub.py"
 MASTER_URL="spark://spark-master:7077"
 
 # 메모리 설정
