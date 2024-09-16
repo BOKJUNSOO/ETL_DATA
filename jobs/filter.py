@@ -39,7 +39,7 @@ class ClassTraceFilter(BaseFilter):
                                                  "date")))
         df = df.select("character_name",
                        "character_level",
-                       "class",
+                       F.col("sub_class_name").alias("class"),
                        "date",
                        "key_value")
         return df

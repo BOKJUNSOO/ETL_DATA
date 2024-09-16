@@ -27,13 +27,13 @@ if __name__ == "__main__":
 
     # today ranking data @timestamp
     args.target_date = datetime.now().strftime("2024-%m-%d")
-    #args.target_date = "2024-09-01"
+    #args.target_date = "2024-08-01"
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
     
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
-    #args.target_date1 = "2024-08-31"
+    #args.target_date1 = "2024-07-31"
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
 
@@ -43,6 +43,7 @@ if __name__ == "__main__":
 
     # load and preprocessed data (for daily status)
     df = init_df(df_t)
+    df_a = init_df_a(df_t)
 
     # load and preporcessed data (for comparing)
     df_e = init_df_e(df_e)
@@ -72,7 +73,7 @@ if __name__ == "__main__":
 
     # class trace filter (with today data) -- personal Trace
     classtrace = ClassTraceFilter(args)
-    classtrace_df = classtrace.filter(df)     # -- data model 4
+    classtrace_df = classtrace.filter(df_a)     # -- data model 4
 
     # StatusChangeCount (with df2)
     status_change = StatusChangeCount(args)
@@ -102,7 +103,8 @@ if __name__ == "__main__":
     
     # daily session _personal trace schema
     mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
-    #mysql2.write_to_mysql(predict_day_df, "levelup")  
+    #mysql2.write_to_mysql(predict_day_df, "levelup") 
+    classtrace_df.show(10, False)
     mysql2.write_to_mysql(classtrace_df, "class")
     
 

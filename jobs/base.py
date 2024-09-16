@@ -91,6 +91,24 @@ def location2_df(df):
                              .otherwise(F.col("character_level")))
     return df
 
+# dataframe for ADVENTURERS
+def init_df_a(df):
+    # select colum to use
+    adventure_list = ["전사", "도적", "궁수", "마법사", "해적"]
+
+    df = df.select(F.explode("ranking")
+                   .alias("ranking_info"))
+    df = df.select("ranking_info.date",
+                   "ranking_info.character_name",
+                   "ranking_info.character_level",
+                   "ranking_info.class_name",
+                   "ranking_info.sub_class_name")
+    
+    df = df.filter(df["class_name"]
+              .isin(adventure_list))
+    return df
+    
+
 # Preprocessing for data store
 def init_df(df):
     # select column to use

@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # target_date1 : yesterday data
 
     # put date for needs
-    for i in range(2,22):
+    for i in range(2,32):
         if i == 1:
             print("1일 데이터는 main파일을 이용해 주세요")
         elif 2 <= i <= 9:
@@ -61,13 +61,14 @@ if __name__ == "__main__":
 
         # load and preprocessed data (for daily status)
         df = init_df(df_t)
+        df_a = init_df_a(df_t)
 
         # load and preporcessed data (for comparing)
         df_e = init_df_e(df_e)
         df_t = init_df(df_t)
         df_y = init_df(df_y)
         df2 = init2_df(df_t, df_y)
-        
+
         # ---------------------------------------------------------|
         dist_filter = TopClassFilter(args)
         dist_df = location_df(df)
@@ -94,7 +95,7 @@ if __name__ == "__main__":
 
         ## save four data model to elasticSearch
         es = Es("http://es:9200")
-        es.write_elasticesearch(dist_df, f"ranking_{args.target_date}") # 1
+        #es.write_elasticesearch(dist_df, f"ranking_{args.target_date}") # 1
         #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}") # 2
         #es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}") # 3
         #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}") # 5
@@ -108,9 +109,9 @@ if __name__ == "__main__":
 
         ms = Ms("jdbc:mysql://172.21.80.1:3306/PersonalTrace")
         classtrace = ClassTraceFilter(args)
-        classtrace_df = classtrace.filter(df)     
+        classtrace_df = classtrace.filter(df_a)     
         classtrace_df.show(20,False)        
-        #ms.write_to_mysql(classtrace_df,"class")
+        ms.write_to_mysql(classtrace_df,"class")
         #ms.write_to_mysql(predict_day_df, "levelup")
 
         #ms.write_to_mysql(classtrace_df,"study_SQL")
