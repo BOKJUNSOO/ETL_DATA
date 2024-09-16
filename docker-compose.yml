@@ -43,7 +43,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4g  # Worker 의 메몰 제한 설정
+          memory: 4g  # Worker 의 메모리 제한 설정
 
 
   spark-worker-2:

@@ -67,7 +67,7 @@ def read_input2(spark, input_path):
 def location_df(df):
     df = df.withColumn("status" ,
                        when(df["character_level"] > 289, "Tallahart")
-                             .when((df["character_level"] < 290) &(df["character_level"] > 284) , "Carcion")
+                             .when((df["character_level"] < 290) & (df["character_level"] > 284) , "Carcion")
                              .when((df["character_level"] < 285) & (df["character_level"] > 279) , "Arteria")
                              .when((df["character_level"] < 280) & (df["character_level"] > 274) , "Dowonkyung")
                              .otherwise(F.col("character_level")))

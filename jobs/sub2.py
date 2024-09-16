@@ -32,13 +32,13 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
     
     # put date for needs
-    for i in range(11,32):
+    for i in range(2,10):
         # today data (@timestamp)
-        args.target_date = f"2024-07-{i}"
+        args.target_date = f"2024-09-0{i}"
         args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
         
         # one day before data
-        args.target_date1 = f"2024-07-{i-1}"
+        args.target_date1 = f"2024-09-0{i-1}"
         args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
         # load data
@@ -56,33 +56,38 @@ if __name__ == "__main__":
         df2 = init2_df(df_t, df_y)
         
         # ---------------------------------------------------------|
-        #-- DataModel_2
-        # use another order with merged data for this datamodel
-        #exp_user = TopExpUserFilter(args)
-        #expuser_df = exp_user.filter(df_e, df_y, df_t, df2)
-        
+        dist_filter = TopClassFilter(args)
+        dist_df = location_df(df)
+        dist_df = dist_filter.filter(dist_df)   # -- datamodel 1
+        # ---------------------------------------------------------|
+        exp_user = TopExpUserFilter(args)
+        expuser_df = exp_user.filter(df_e, df_y, df_t, df2)
         # top Hunting class filter (with df2)
-        #mean_exp = 500000000000
-        #exp_class = TopHuntingClassFilter(args)
-        #df = location2_df(expuser_df)
-        #tophuntclass_df = exp_class.filter(df, mean_exp)    # -- datamodel 2
+        mean_exp = 500000000000
+        exp_class = TopHuntingClassFilter(args)
+        df_1 = location2_df(expuser_df)
+        tophuntclass_df = exp_class.filter(df_1, mean_exp)    # -- datamodel 2
         
         # ---------------------------------------------------------|
         # predict day filter (with df2)
-        #predict_day = PredictDayFilter(args)
-        #predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df) # -- datamodel 3 (personal trace)
+        predict_day = PredictDayFilter(args)
+        predict_day_df = predict_day.filter(df_e, df2, df_t, expuser_df) # -- datamodel 3 (personal trace)
         
         # ---------------------------------------------------------|
         # Status_Change_count filter (with df2)
-        #status_change = StatusChangeCount(args)
-        #status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 4 (status_change_info)
+        status_change = StatusChangeCount(args)
+        status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 5 (status_change_info)
 
-        # save three data model to elasticSearch
-        #es = Es("http://es:9200")
-        #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}")
-        #es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}")
-        #es.write_elasticesearch(status_change_df, f"status_change_{args.target_date}")
 
+        ## save four data model to elasticSearch
+        es = Es("http://es:9200")
+        #es.write_elasticesearch(dist_df, f"ranking_{args.target_date}") # 1
+        #es.write_elasticesearch(tophuntclass_df, f"hunting_data_{args.target_date}") # 2
+        #es.write_elasticesearch(predict_day_df , f"personal_exp_{args.target_date}") # 3
+        #es.write_elasticesearch(status_change_df, f"status_{args.target_date}") # 5
+
+
+        ## save data model to MySQL
         ms = Ms("jdbc:mysql://172.21.80.1:3306/MapleRanking")
         #ms.write_to_mysql(status_change_df, "status")
         #ms.write_to_mysql(tophuntclass_df, "hunting")
@@ -90,7 +95,7 @@ if __name__ == "__main__":
         ms = Ms("jdbc:mysql://172.21.80.1:3306/PersonalTrace")
         classtrace = ClassTraceFilter(args)
         classtrace_df = classtrace.filter(df)     
-        classtrace_df.show(20,False)        # -- data model 4
+        classtrace_df.show(20,False)        
         ms.write_to_mysql(classtrace_df,"class")
         #ms.write_to_mysql(predict_day_df, "levelup")
         

@@ -35,14 +35,14 @@ if __name__ == "__main__":
     args.target_date = datetime.now().strftime("2024-%m-%d")
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
-    #args.target_date = "2024-09-08"
+    #args.target_date = "2024-09-13"
     #args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
 
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
     
-    #args.target_date1 = "2024-09-07"
+    #args.target_date1 = "2024-09-12"
     #args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
     
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     # ---------------------------------------------------------|
     # Status_Change_count filter (with df2)
     status_change = StatusChangeCount(args)
-    status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 4 (status_change_info)
+    status_change_df = status_change.filter(df2, df_y, df_t)    # -- datamodel 5 (status_change_info)
     
 
     dist_df.show(10,False)

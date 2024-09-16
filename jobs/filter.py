@@ -2,14 +2,12 @@ from base import BaseFilter
 import pyspark.sql.functions as F
 from pyspark.sql import Window
 
-
 # daily filter
 class TopClassFilter(BaseFilter):
     def filter(self, df):
         class_df = df.groupBy("class","date") \
                      .pivot("status") \
                      .count()
-        
         map_list = ["Tallahart", "Carcion", "Arteria", "Dowonkyung"]
         class_df = class_df.withColumn("sum"
                                          ,sum(F.col(c) for c in map_list))

@@ -25,15 +25,15 @@ if __name__ == "__main__":
     # load exp data
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
 
-    # today ranking data
+    # today ranking data @timestamp
     args.target_date = datetime.now().strftime("2024-%m-%d")
-    #args.target_date = "2024-07-10"
+    #args.target_date = "2024-09-10"
     args.input_path2 = f"/opt/bitnami/spark/data/ranking_{args.target_date}.json"
     
     
     # yesterday ranking data
     args.target_date1 = (datetime.now() - timedelta(1)).strftime("2024-%m-%d")
-    #args.target_date1 = "2024-07-09"
+    #args.target_date1 = "2024-09-09"
     args.input_path3 = f"/opt/bitnami/spark/data/ranking_{args.target_date1}.json"
 
 
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     # top Hunting class filter (with df2)
     mean_exp = 500000000000
     exp_class = TopHuntingClassFilter(args)
-    df = location2_df(expuser_df)
-    tophuntclass_df = exp_class.filter(df, mean_exp)    # -- data model 2
+    df_1 = location2_df(expuser_df)
+    tophuntclass_df = exp_class.filter(df_1, mean_exp)    # -- data model 2
 
     # predict day filter (with df2)
     predict_day = PredictDayFilter(args)
@@ -83,9 +83,9 @@ if __name__ == "__main__":
     # spark dataframe to write
     #dist_df.show(10, False) 
     #tophuntclass_df.show(10,False)
-    predict_day_df.select("*") \
-                  .orderBy(F.asc("need_exp_level_up")) \
-                  .show(10,False)
+    #predict_day_df.select("*") \
+    #              .orderBy(F.asc("need_exp_level_up")) \
+    #              .show(10,False)
     #classtrace_df.show(10,False)
     #status_change_df.show(30,False)
 
@@ -95,14 +95,14 @@ if __name__ == "__main__":
 
     #daily session_ mapleranking schema
     mysql1 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME1}")
-    mysql1.write_to_mysql(dist_df, "distribution")
-    mysql1.write_to_mysql(tophuntclass_df, "hunting")
-    mysql1.write_to_mysql(status_change_df, "status")
+    #mysql1.write_to_mysql(dist_df, "distribution")
+    #mysql1.write_to_mysql(tophuntclass_df, "hunting")
+    #mysql1.write_to_mysql(status_change_df, "status")
     
     
     # daily session _personal trace schema
     mysql2 = Ms(f"jdbc:mysql://172.21.80.1:3306/{DB_NAME2}")
-    mysql2.write_to_mysql(predict_day_df, "levelup")  
+    #mysql2.write_to_mysql(predict_day_df, "levelup")  
     mysql2.write_to_mysql(classtrace_df, "class")
     
 
