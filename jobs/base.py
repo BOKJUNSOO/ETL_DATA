@@ -10,7 +10,7 @@ class BaseFilter(ABC):
         self.spark = args.spark
         
     def filter (self,df):
-        None
+        pass
 
 # Check data exist
 def read_input_csv(spark, input_path):

@@ -32,13 +32,13 @@ if __name__ == "__main__":
     args.input_path1 = "/opt/bitnami/spark/data/maple_exp.csv"
 
     # input year and month 
-    target_year_month = "2024-08"
+    target_year_month = "2024-09"
 
     # target_date : today data (timestamp)
     # target_date1 : yesterday data
 
     # put date for needs
-    for i in range(2,32):
+    for i in range(28,31):
         if i == 1:
             print("1일 데이터는 main파일을 이용해 주세요")
         elif 2 <= i <= 9:
@@ -114,5 +114,4 @@ if __name__ == "__main__":
         ms.write_to_mysql(classtrace_df,"class")
         #ms.write_to_mysql(predict_day_df, "levelup")
 
-        #ms.write_to_mysql(classtrace_df,"study_SQL")
         
